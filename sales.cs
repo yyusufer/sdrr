@@ -226,22 +226,8 @@ namespace sdr
 
         private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
-            if (!deleteEnabled) // Silme kapalıysa işlem yapma
-                return;
-
-            if (e.RowIndex >= 0)
-            {
-                var result = MessageBox.Show("Bu siparişi silmek istediğinize emin misiniz? (Tüm detayları silinecektir)", "Sipariş Sil", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
-
-                if (result == DialogResult.Yes)
-                {
-                    int siparisId = Convert.ToInt32(dataGridView1.Rows[e.RowIndex].Cells["SiparisID"].Value);
-                    siparisService.DeleteSiparis(siparisId); // Sipariş silme servisini kullan
-
-                    dataGridView1.DataSource = siparisService.GetSiparislerForCurrentUser(); // Verileri yenile
-                    gorsel(); // Veriler yenilendikten sonra görsel stili yeniden uygula
-                }
-            }
+         
+            
         }
         // sales.cs (Bu kodları mevcut sales.cs dosyanızdaki sınıfın içine yapıştırın)
 
@@ -455,8 +441,7 @@ namespace sdr
         // dataGridView1_CellContentClick olay işleyicisi (gerekmeyebilir, ama hata verdiğinde eklemek faydalı)
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            // Bu olay genellikle seçim veya çift tıklama mantığı için kullanılmaz.
-            // İhtiyacınız yoksa kaldırabilirsiniz.
+
         }
 
         // dataGridView1_DoubleClick olay işleyicisi (gerekmeyebilir, ama hata verdiğinde eklemek faydalı)
@@ -464,6 +449,27 @@ namespace sdr
         {
             // CellDoubleClick zaten kullanıldığından bu metod gereksizdir.
             // Karışıklığı önlemek için kaldırılabilir.
+        }
+
+        private void dataGridView1_CellDoubleClick_1(object sender, DataGridViewCellEventArgs e)
+        {
+            if (!deleteEnabled)
+            {
+                MessageBox.Show("Satır silme işlemi için önce kilidi açın (Unlock).", "Erişim Engellendi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (e.RowIndex < 0 || dataGridView1.SelectedRows.Count == 0)
+                return;
+
+            DialogResult result = MessageBox.Show("Seçilen siparişi silmek istediğinize emin misiniz?", "Onay", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                int siparisId = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["SiparisID"].Value);
+                siparisService.DeleteSiparis(siparisId);
+                MessageBox.Show("Sipariş başarıyla silindi.", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                dataGridView1.DataSource = siparisService.GetSiparislerForCurrentUser(); // Listeyi yenile
+            }
         }
 
         // ... (Diğer metotlarınız ve sınıf kapanış parantezi) ...

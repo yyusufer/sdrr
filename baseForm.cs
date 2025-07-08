@@ -40,6 +40,7 @@ namespace sdr
 
         private void baseForm_Load(object sender, EventArgs e)
         {
+            this.Icon = new Icon("sdr_logo.ico");
         }
 
         protected void quitButton_Click(object sender, EventArgs e)

@@ -241,5 +241,85 @@ VALUES (@SiparisID, @UrunID, @Miktar, @BirimFiyat, @DetayIskontoYuzdesi, @DetayS
                 return siparisId;
             }
         }
+
+        public void GetDailyAndMonthlyTotalSales(out int dailyTotalSales, out int monthlyTotalSales)
+        {
+            dailyTotalSales = 0;
+            monthlyTotalSales = 0;
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string dailySalesQuery;
+                    string monthlySalesQuery;
+                    SqlCommand dailyCommand;
+                    SqlCommand monthlyCommand;
+
+                    // Kullanıcının tüm satışları görme yetkisi varsa
+                    if (Session.UserPermissions.Contains("allSaleList"))
+                    {
+                        // Tüm satışları sorgula
+                        dailySalesQuery = @"
+                    SELECT COUNT(SiparisID)
+                    FROM Siparisler
+                    WHERE CAST(SiparisTarihi AS DATE) = CAST(GETDATE() AS DATE);";
+
+                        monthlySalesQuery = @"
+                    SELECT COUNT(SiparisID)
+                    FROM Siparisler
+                    WHERE MONTH(SiparisTarihi) = MONTH(GETDATE())
+                    AND YEAR(SiparisTarihi) = YEAR(GETDATE());";
+
+                        dailyCommand = new SqlCommand(dailySalesQuery, connection);
+                        monthlyCommand = new SqlCommand(monthlySalesQuery, connection);
+                    }
+                    else
+                    {
+                        // Sadece kendi satışlarını sorgula (kullanıcının ID'si Session.UserId)
+                        dailySalesQuery = @"
+                    SELECT COUNT(SiparisID)
+                    FROM Siparisler
+                    WHERE CAST(SiparisTarihi AS DATE) = CAST(GETDATE() AS DATE)
+                    AND PersonelId = @UserId;";
+
+                        monthlySalesQuery = @"
+                    SELECT COUNT(SiparisID)
+                    FROM Siparisler
+                    WHERE MONTH(SiparisTarihi) = MONTH(GETDATE())
+                    AND YEAR(SiparisTarihi) = YEAR(GETDATE())
+                    AND PersonelId = @UserId;";
+
+                        dailyCommand = new SqlCommand(dailySalesQuery, connection);
+                        monthlyCommand = new SqlCommand(monthlySalesQuery, connection);
+
+                        // Parametre olarak kullanıcı ID'sini gönder
+                        dailyCommand.Parameters.AddWithValue("@UserId", Session.UserId);
+                        monthlyCommand.Parameters.AddWithValue("@UserId", Session.UserId);
+                    }
+
+                    // Günlük satış sayısı
+                    object dailyResult = dailyCommand.ExecuteScalar();
+                    if (dailyResult != DBNull.Value)
+                        dailyTotalSales = Convert.ToInt32(dailyResult);
+
+                    // Aylık satış sayısı
+                    object monthlyResult = monthlyCommand.ExecuteScalar();
+                    if (monthlyResult != DBNull.Value)
+                        monthlyTotalSales = Convert.ToInt32(monthlyResult);
+                }
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show("Veritabanı hatası oluştu: " + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Genel bir hata oluştu: " + ex.Message, "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
     }
 }

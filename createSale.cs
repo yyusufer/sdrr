@@ -27,7 +27,7 @@ namespace sdr
         public createSale()
         {
             InitializeComponent();
-
+            phoneTextbox.Leave += phoneTextbox_Leave;
             this.Load += createSale_Load;
             txtProductSearch.TextChanged += TxtProductSearch_TextChanged;
             lstSearchResults.DoubleClick += LstSearchResults_DoubleClick;
@@ -427,11 +427,82 @@ namespace sdr
 
         private void PhoneTextbox_TextChanged(object sender, EventArgs e)
         {
+            //string telefon = phoneTextbox.Text.Trim();
+
+            //if (telefon.Length < 5)
+            //{
+            //    // Hatalı veya eksik numara için temizlik yap
+            //    nameTextbox.Text = "";
+            //    surnameTextbox.Text = "";
+            //    selectedMusteriId = -1;
+            //    return;
+            //}
+
+            //using (var conn = new SqlConnection(connectionString))
+            //{
+            //    conn.Open();
+            //    string query = "SELECT MusteriID, Ad, Soyad FROM Musteriler WHERE Telefon = @telefon";
+            //    using (var cmd = new SqlCommand(query, conn))
+            //    {
+            //        cmd.Parameters.AddWithValue("@telefon", telefon);
+            //        using (var reader = cmd.ExecuteReader())
+            //        {
+            //            if (reader.Read())
+            //            {
+            //                selectedMusteriId = reader.GetInt32(0);
+            //                nameTextbox.Text = reader.GetString(1);
+            //                surnameTextbox.Text = reader.GetString(2);
+            //            }
+            //            else
+            //            {
+            //                nameTextbox.Text = "";
+            //                surnameTextbox.Text = "";
+            //                selectedMusteriId = -1;
+            //            }
+            //        }
+            //    }
+            //}
+        }
+
+
+        private void phoneTextbox_TextChanged(object sender, EventArgs e)
+        {
+            string telefon = phoneTextbox.Text.Trim();
+            if (telefon.Length >= 10)
+            {
+                using (var conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    string query = "SELECT MusteriID, Ad, Soyad FROM Musteriler WHERE Telefon = @telefon";
+                    using (var cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@telefon", telefon);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                selectedMusteriId = reader.GetInt32(0);
+                                nameTextbox.Text = reader.GetString(1);
+                                surnameTextbox.Text = reader.GetString(2);
+                            }
+                            else
+                            {
+                                nameTextbox.Text = "";
+                                surnameTextbox.Text = "";
+                                selectedMusteriId = -1;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private void phoneTextbox_Leave(object sender, EventArgs e)
+        {
             string telefon = phoneTextbox.Text.Trim();
 
             if (telefon.Length < 5)
             {
-                // Hatalı veya eksik numara için temizlik yap
                 nameTextbox.Text = "";
                 surnameTextbox.Text = "";
                 selectedMusteriId = -1;
@@ -462,13 +533,6 @@ namespace sdr
                     }
                 }
             }
-        }
-
-
-        private void phoneTextbox_TextChanged(object sender, EventArgs e)
-        {
-            this.phoneTextbox.TextChanged += PhoneTextbox_TextChanged;
-
         }
     }
 

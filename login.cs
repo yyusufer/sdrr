@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Microsoft.VisualBasic;
+using Newtonsoft.Json;
 using sdr.Helpers;
 using sdr.Models;
 using sdr.Services;
-using Newtonsoft.Json;
-using System.IO;
 
 namespace sdr
 {
@@ -21,47 +16,46 @@ namespace sdr
     {
         private readonly PermissionService _permissionService = new PermissionService();
 
+        private readonly string appDataFolder;
+        private readonly string rememberMeFilePath;
+
         private readonly string _connectionString = DbConnectionManager.GetConnectionString();
+
         public login()
         {
             InitializeComponent();
-            /*
-                        try
-                        {
-                            using (var conn = new SqlConnection(_connectionString))
-                            {
-                                conn.Open();
-                                // bağlantı başarılı
-                            }
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show("Bağlantı hatası: " + ex.Message);
-                        }
-            */
+
+            appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SDR Sistemleri");
+            rememberMeFilePath = Path.Combine(appDataFolder, "rememberMe.json");
+
+            if (!Directory.Exists(appDataFolder))
+            {
+                Directory.CreateDirectory(appDataFolder);
+            }
         }
 
         private void login_Load(object sender, EventArgs e)
         {
             this.KeyPreview = true;
             this.KeyDown += LoginForm_KeyDown;
+
             string remembered = LoadRememberedUsername();
             if (!string.IsNullOrEmpty(remembered))
             {
                 txtUsername.Text = remembered;
                 checkRemember.Checked = true;
             }
+
+            this.Icon = new Icon("sdr_logo.ico");
         }
 
         private void LoginForm_KeyDown(object sender, KeyEventArgs e)
         {
-            
             if (e.KeyCode == Keys.Enter)
             {
                 btnLogin_Click(this, EventArgs.Empty);
             }
         }
-
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
@@ -85,7 +79,6 @@ namespace sdr
 
                 Session.UserId = loggedInUser.UserId;
 
-                // Burada doğru metodu çağır:
                 Session.UserPermissions = _permissionService.GetPermissionsByUserId(loggedInUser.UserId)
                                                             .Select(p => p.PermissionName)
                                                             .ToList();
@@ -106,7 +99,7 @@ namespace sdr
 
                 this.Hide();
                 adminform.lblUsername.Text = txtUsername.Text + " logged in";
-                
+
                 adminform.ShowDialog();
             }
             else
@@ -115,17 +108,14 @@ namespace sdr
             }
         }
 
-
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             DatabaseInformation databaseInformation = new DatabaseInformation();
             databaseInformation.ShowDialog();
         }
-        string rememberMeFilePath = Path.Combine(Application.StartupPath, "rememberMe.json");
+
         private void SaveRememberMe(string username)
         {
-            
-
             var data = new RememberMeData
             {
                 Username = username,
@@ -134,9 +124,8 @@ namespace sdr
 
             string json = JsonConvert.SerializeObject(data);
             File.WriteAllText(rememberMeFilePath, json);
-
-            
         }
+
         private string LoadRememberedUsername()
         {
             if (!File.Exists(rememberMeFilePath))
@@ -162,7 +151,5 @@ namespace sdr
                 return null;
             }
         }
-
-
     }
 }

@@ -28,14 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-            DevExpress.XtraEditors.LabelControl dailyLabel;
             this.quitButton = new ReaLTaiizor.Controls.CyberButton();
             this.customersButton = new ReaLTaiizor.Controls.LostButton();
-            this.personelButton = new ReaLTaiizor.Controls.LostButton();
             this.settingsButton = new ReaLTaiizor.Controls.LostButton();
             this.salesButton = new ReaLTaiizor.Controls.LostButton();
             this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
-            this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
             this.labelControl3 = new DevExpress.XtraEditors.LabelControl();
             this.createSaleButton = new ReaLTaiizor.Controls.LostButton();
             this.labelControl4 = new DevExpress.XtraEditors.LabelControl();
@@ -43,21 +40,9 @@
             this.flowPanelButtons = new System.Windows.Forms.FlowLayoutPanel();
             this.btnLogout = new ReaLTaiizor.Controls.CyberButton();
             this.panelSettingsSubMenu = new System.Windows.Forms.Panel();
-            dailyLabel = new DevExpress.XtraEditors.LabelControl();
+            this.stokEntryButton = new ReaLTaiizor.Controls.LostButton();
             this.flowPanelButtons.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // dailyLabel
-            // 
-            dailyLabel.Appearance.Font = new System.Drawing.Font("Inter Medium", 50.75F, System.Drawing.FontStyle.Bold);
-            dailyLabel.Appearance.ForeColor = System.Drawing.Color.White;
-            dailyLabel.Appearance.Options.UseFont = true;
-            dailyLabel.Appearance.Options.UseForeColor = true;
-            dailyLabel.Location = new System.Drawing.Point(804, 384);
-            dailyLabel.Name = "dailyLabel";
-            dailyLabel.Size = new System.Drawing.Size(89, 97);
-            dailyLabel.TabIndex = 4;
-            dailyLabel.Text = "40";
             // 
             // quitButton
             // 
@@ -116,22 +101,6 @@
             this.customersButton.Text = "Customers";
             this.customersButton.Click += new System.EventHandler(this.customersButton_Click_1);
             // 
-            // personelButton
-            // 
-            this.personelButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
-            this.personelButton.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.personelButton.Font = new System.Drawing.Font("Inter Light", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.personelButton.ForeColor = System.Drawing.Color.White;
-            this.personelButton.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(100)))));
-            this.personelButton.Image = null;
-            this.personelButton.Location = new System.Drawing.Point(3, 183);
-            this.personelButton.Name = "personelButton";
-            this.personelButton.Size = new System.Drawing.Size(228, 84);
-            this.personelButton.TabIndex = 3;
-            this.personelButton.Tag = "personel_list";
-            this.personelButton.Text = "Personel List";
-            this.personelButton.Click += new System.EventHandler(this.personelButton_Click);
-            // 
             // settingsButton
             // 
             this.settingsButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
@@ -140,7 +109,7 @@
             this.settingsButton.ForeColor = System.Drawing.Color.White;
             this.settingsButton.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(100)))));
             this.settingsButton.Image = null;
-            this.settingsButton.Location = new System.Drawing.Point(3, 363);
+            this.settingsButton.Location = new System.Drawing.Point(3, 273);
             this.settingsButton.Name = "settingsButton";
             this.settingsButton.Size = new System.Drawing.Size(228, 84);
             this.settingsButton.TabIndex = 2;
@@ -158,14 +127,13 @@
             this.salesButton.ForeColor = System.Drawing.Color.White;
             this.salesButton.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(100)))));
             this.salesButton.Image = null;
-            this.salesButton.Location = new System.Drawing.Point(3, 273);
+            this.salesButton.Location = new System.Drawing.Point(3, 183);
             this.salesButton.Name = "salesButton";
             this.salesButton.Size = new System.Drawing.Size(228, 84);
             this.salesButton.TabIndex = 3;
             this.salesButton.Tag = "sales";
             this.salesButton.Text = "Sales";
             this.salesButton.Click += new System.EventHandler(this.salesButton_Click);
-            this.salesButton.MouseEnter += new System.EventHandler(this.salesButton_MouseEnter);
             this.salesButton.MouseLeave += new System.EventHandler(this.salesButton_MouseLeave);
             // 
             // labelControl1
@@ -179,18 +147,6 @@
             this.labelControl1.Size = new System.Drawing.Size(94, 23);
             this.labelControl1.TabIndex = 4;
             this.labelControl1.Text = "Target Sales";
-            // 
-            // labelControl2
-            // 
-            this.labelControl2.Appearance.Font = new System.Drawing.Font("Inter", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelControl2.Appearance.ForeColor = System.Drawing.Color.White;
-            this.labelControl2.Appearance.Options.UseFont = true;
-            this.labelControl2.Appearance.Options.UseForeColor = true;
-            this.labelControl2.Location = new System.Drawing.Point(826, 355);
-            this.labelControl2.Name = "labelControl2";
-            this.labelControl2.Size = new System.Drawing.Size(38, 23);
-            this.labelControl2.TabIndex = 4;
-            this.labelControl2.Text = "Daily";
             // 
             // labelControl3
             // 
@@ -250,9 +206,9 @@
             this.flowPanelButtons.AutoSize = true;
             this.flowPanelButtons.Controls.Add(this.createSaleButton);
             this.flowPanelButtons.Controls.Add(this.customersButton);
-            this.flowPanelButtons.Controls.Add(this.personelButton);
             this.flowPanelButtons.Controls.Add(this.salesButton);
             this.flowPanelButtons.Controls.Add(this.settingsButton);
+            this.flowPanelButtons.Controls.Add(this.stokEntryButton);
             this.flowPanelButtons.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowPanelButtons.Location = new System.Drawing.Point(43, 77);
             this.flowPanelButtons.Name = "flowPanelButtons";
@@ -309,6 +265,22 @@
             this.panelSettingsSubMenu.TabIndex = 9;
             this.panelSettingsSubMenu.Paint += new System.Windows.Forms.PaintEventHandler(this.panelSettingsSubMenu_Paint);
             // 
+            // stokEntryButton
+            // 
+            this.stokEntryButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(64)))));
+            this.stokEntryButton.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.stokEntryButton.Font = new System.Drawing.Font("Inter Light", 15.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
+            this.stokEntryButton.ForeColor = System.Drawing.Color.White;
+            this.stokEntryButton.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(100)))));
+            this.stokEntryButton.Image = null;
+            this.stokEntryButton.Location = new System.Drawing.Point(3, 363);
+            this.stokEntryButton.Name = "stokEntryButton";
+            this.stokEntryButton.Size = new System.Drawing.Size(228, 84);
+            this.stokEntryButton.TabIndex = 4;
+            this.stokEntryButton.Tag = "stock";
+            this.stokEntryButton.Text = "Stock Entry";
+            this.stokEntryButton.Click += new System.EventHandler(this.stokEntryButton_Click);
+            // 
             // adminForm
             // 
             this.AccessibleRole = System.Windows.Forms.AccessibleRole.None;
@@ -325,8 +297,6 @@
             this.Controls.Add(this.lblUsername);
             this.Controls.Add(this.labelControl3);
             this.Controls.Add(this.labelControl4);
-            this.Controls.Add(this.labelControl2);
-            this.Controls.Add(dailyLabel);
             this.Controls.Add(this.labelControl1);
             this.Controls.Add(this.quitButton);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
@@ -345,11 +315,9 @@
         #endregion
 
         private ReaLTaiizor.Controls.LostButton customersButton;
-        private ReaLTaiizor.Controls.LostButton personelButton;
         private ReaLTaiizor.Controls.LostButton settingsButton;
         private ReaLTaiizor.Controls.LostButton salesButton;
         private DevExpress.XtraEditors.LabelControl labelControl1;
-        private DevExpress.XtraEditors.LabelControl labelControl2;
         private DevExpress.XtraEditors.LabelControl labelControl3;
         private ReaLTaiizor.Controls.LostButton createSaleButton;
         private DevExpress.XtraEditors.LabelControl labelControl4;
@@ -357,6 +325,7 @@
         private System.Windows.Forms.FlowLayoutPanel flowPanelButtons;
         private ReaLTaiizor.Controls.CyberButton btnLogout;
         private System.Windows.Forms.Panel panelSettingsSubMenu;
+        private ReaLTaiizor.Controls.LostButton stokEntryButton;
     }
 }
 

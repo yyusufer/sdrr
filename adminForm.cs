@@ -16,25 +16,26 @@ using sdr.Services;
 using sdr.Models;
 namespace sdr
 {
-    
+
     public partial class adminForm : Form
     {
-         bool mouseInSubMenu = false;
-         bool mouseInMainButton = false;
-         Timer closeTimer;
+        private SiparisService _siparisService;
+        bool mouseInSubMenu = false;
+        bool mouseInMainButton = false;
+        Timer closeTimer;
         private CyberButton quitButton;
         private int _radius = 30;
         private Color startColor = Color.FromArgb(0, 0, 64);   // Başlangıç rengi
-        private Color targetColor = Color.FromArgb(0,0,100); // Hover rengi
+        private Color targetColor = Color.FromArgb(0, 0, 100); // Hover rengi
         private CircleProgressBar dailyProgress;
         private CircleProgressBar monthlyProgress;
         private Timer refreshTimer;
-       
+        Timer adminTimer;
         public adminForm()
         {
             InitializeComponent();
             CheckPermissionsRecursive(this.Controls);
-
+            _siparisService = new SiparisService();
             closeTimer = new Timer();
             closeTimer.Interval = 300; // 300 ms gecikme
             closeTimer.Tick += CloseTimer_Tick;
@@ -42,12 +43,9 @@ namespace sdr
             panelSettingsSubMenu.MouseEnter += (s, e2) => { mouseInSubMenu = true; closeTimer.Stop(); };
             panelSettingsSubMenu.MouseLeave += (s, e2) => { mouseInSubMenu = false; closeTimer.Start(); };
 
-            // settings butonun ismi neyse onunla değiştir
             settingsButton.MouseEnter += (s, e2) => { mouseInMainButton = true; closeTimer.Stop(); };
             settingsButton.MouseLeave += (s, e2) => { mouseInMainButton = false; closeTimer.Start(); };
 
-
-            // Nesneleri oluştur
             refreshTimer = new Timer();
             refreshTimer.Interval = 6000;
             refreshTimer.Tick += RefreshTimer_Tick;
@@ -55,27 +53,22 @@ namespace sdr
             dailyProgress = new ReaLTaiizor.Controls.CircleProgressBar();
             monthlyProgress = new ReaLTaiizor.Controls.CircleProgressBar();
 
-            // Özelliklerini ayarla
             dailyProgress.Location = new Point(638, 152);
             dailyProgress.Size = new Size(189, 189);
-            dailyProgress.Value = 50;
             dailyProgress.PercentColor = Color.White;
-            dailyProgress.ProgressColor1 = Color.FromArgb(255,128,0);
+            dailyProgress.ProgressColor1 = Color.FromArgb(255, 128, 0);
             dailyProgress.ProgressColor2 = Color.MediumOrchid;
-
 
             monthlyProgress.Location = new Point(869, 152);
             monthlyProgress.Size = new Size(189, 189);
-            monthlyProgress.Value = 75;
             monthlyProgress.PercentColor = Color.White;
             monthlyProgress.ProgressColor1 = Color.MediumOrchid;
             monthlyProgress.ProgressColor2 = Color.Pink;
-            // Formun kontrollerine ekle
             this.Controls.Add(dailyProgress);
             this.Controls.Add(monthlyProgress);
 
-           
 
+         
         }
         private void CloseTimer_Tick(object sender, EventArgs e)
         {
@@ -87,7 +80,7 @@ namespace sdr
         }
         private void RefreshTimer_Tick(object sender, EventArgs e)
         {
-            
+
         }
 
         private void CheckPermissionsRecursive(Control.ControlCollection controls)
@@ -95,15 +88,13 @@ namespace sdr
             var userPermissions = Session.UserPermissions;
 
             foreach (Control ctrl in controls)
-            {
-                // Eğer Tag boşsa izin kontrolü yapma, görünür kalsın
+            {         
                 if (ctrl.Tag == null || string.IsNullOrWhiteSpace(ctrl.Tag.ToString()))
                 {
                     ctrl.Visible = true;
                 }
                 else
-                {
-                    // Sadece LostButton ve CyberButton için izin kontrolü yap
+                { 
                     if ((ctrl is LostButton || ctrl is CyberButton))
                     {
                         string requiredPermission = ctrl.Tag.ToString();
@@ -111,12 +102,10 @@ namespace sdr
                     }
                     else
                     {
-                        // Tag var ama buton değilse görünür yap
+                        
                         ctrl.Visible = true;
                     }
                 }
-
-                // Eğer bu kontrolün alt kontrolü varsa onları da kontrol et
                 if (ctrl.HasChildren)
                 {
                     CheckPermissionsRecursive(ctrl.Controls);
@@ -124,101 +113,71 @@ namespace sdr
             }
         }
 
-    
 
-        private async  void adminForm_Load(object sender, EventArgs e)
+
+        private async void adminForm_Load(object sender, EventArgs e)
         {
-
+            this.Icon = new Icon("sdr_logo.ico");
+            adminTimer = new Timer();
             panelSettingsSubMenu.Visible = false;
             settingsButton.MouseEnter += settingsButton_MouseEnter;
             settingsButton.MouseLeave += settingsButton_MouseLeave;
-
-            salesButton.MouseEnter += salesButton_MouseEnter;
+            //salesButton.MouseEnter += salesButton_MouseEnter;
             salesButton.MouseLeave += salesButton_MouseLeave;
 
             formStyle_1();
             SetRoundedRegion(_radius);
-          // await login();
-          
-           progressBarAnimate();
+            // await login();
+            LoadSalesData();
+            adminTimer.Interval = 10 * 60 * 1000;
+            adminTimer.Tick += (s, args) => LoadSalesData();
+            adminTimer.Start();
 
-            /*Animate*/
+
 
             foreach (Control ctr in this.Controls)
             {
                 if (ctr is ReaLTaiizor.Controls.LostButton btn)
                 {
-                         ApplyHoverEffect(btn,
-                         Color.FromArgb(0, 0, 64),     // arka plan başlat
-                         Color.FromArgb(0, 0, 100),   // arka plan hover
-                         Color.White,                    // yazı rengi başlat
-                         Color.OrangeRed                     // yazı rengi hover
-                 );
+                    ApplyHoverEffect(btn,
+                    Color.FromArgb(0, 0, 64),     
+                    Color.FromArgb(0, 0, 100),   
+                    Color.White,                    
+                    Color.OrangeRed                    
+            );
                 }
             }
 
-           
+
 
         }
         private void ApplyPermissions(Control.ControlCollection controls)
         {
             foreach (Control ctrl in controls)
             {
-                // Eğer bu control bir butonsa ve Tag atanmışsa
                 if (ctrl is LostButton btn && btn.Tag != null)
                 {
                     string requiredPermission = btn.Tag.ToString();
 
                     if (!Session.UserPermissions.Contains(requiredPermission))
                     {
-                        btn.Visible = false; // Yetkisi yoksa gizle
+                        btn.Visible = false; 
                     }
                 }
-
-                // Eğer bu control bir container ise (panel, groupbox vs.), alt kontrolleri de gez
-                if (ctrl.HasChildren)
+         if (ctrl.HasChildren)
                 {
                     ApplyPermissions(ctrl.Controls);
                 }
             }
         }
-        public void progressBarAnimate()
-        {
-           
-            int targetDaily = 70;
-            int targetMonthly = 45;
-
-            Timer timer = new Timer();
-            timer.Interval = 30; // Animasyon hızı (daha düşük = daha hızlı)
-
-            timer.Tick += (s, e) =>
-            {
-                if (dailyProgress.Value < targetDaily)
-                    dailyProgress.Value += 1;
-
-
-                if (monthlyProgress.Value < targetMonthly)
-                    monthlyProgress.Value += 1;
-
-                if (dailyProgress.Value >= targetDaily && monthlyProgress.Value >= targetMonthly)
-                {
-                    timer.Stop();
-                    timer.Dispose();
-                }
-            };
-
-            // Başlangıç değerlerini sıfırla ve başlat
-            dailyProgress.Value = 0;
-            monthlyProgress.Value = 0;
-            timer.Start();
-           
-        }
+       
         public async Task login()
         {
             foreach (Control ctrl in this.Controls)
             {
                 ctrl.Visible = false;
             }
+            
 
             Label dynamicLabel = new Label();
             dynamicLabel.Text = "Welcome to SDR Systems";
@@ -230,7 +189,7 @@ namespace sdr
             dynamicLabel.BringToFront();
             dynamicLabel.Visible = true;
 
-            // TaskCompletionSource ile bekleme işlemi için görev oluşturuyoruz
+           
             var tcs = new TaskCompletionSource<bool>();
 
             Timer timer = new Timer();
@@ -247,23 +206,23 @@ namespace sdr
                     dynamicLabel = null;
                 }
 
-                // Diğer kontrolleri göster
+                
                 foreach (Control ctrl in this.Controls)
                 {
                     ctrl.Visible = true;
                 }
 
-                tcs.SetResult(true);  // Bekleyen görevi tamamla
+                tcs.SetResult(true);  
             };
             timer.Start();
 
-            await tcs.Task;  // Burada 5 saniye beklenir
+            await tcs.Task;  
         }
 
 
         void formStyle_1()
         {
-            
+
             this.Load += adminForm_Load;
             this.DoubleBuffered = true;
         }
@@ -323,7 +282,7 @@ namespace sdr
         }
 
 
-       
+
 
 
         private int Lerp(int start, int end, double amount)
@@ -341,7 +300,7 @@ namespace sdr
             Rectangle bounds = new Rectangle(0, 0, this.Width, this.Height);
 
             using (GraphicsPath path = new GraphicsPath())
-            using (Pen borderPen = new Pen(Color.FromArgb(0,0,154), 2))
+            using (Pen borderPen = new Pen(Color.FromArgb(0, 0, 154), 2))
             {
                 path.StartFigure();
                 path.AddArc(bounds.Left, bounds.Top, diameter, diameter, 180, 90);
@@ -356,13 +315,13 @@ namespace sdr
             }
         }
 
-            private void SetRoundedRegion(int radius)
+        private void SetRoundedRegion(int radius)
         {
             var path = new GraphicsPath();
             int diameter = radius * 2;
             Rectangle bounds = new Rectangle(0, 0, this.Width, this.Height);
 
-           
+
             path.AddArc(bounds.Left, bounds.Top, diameter, diameter, 180, 90);
             path.AddArc(bounds.Right - diameter, bounds.Top, diameter, diameter, 270, 90);
             path.AddArc(bounds.Right - diameter, bounds.Bottom - diameter, diameter, diameter, 0, 90);
@@ -372,7 +331,7 @@ namespace sdr
             this.Region = new Region(path);
         }
 
-        
+
         protected override void OnResize(System.EventArgs e)
         {
             base.OnResize(e);
@@ -386,7 +345,7 @@ namespace sdr
         private void btnCikis_Click(object sender, EventArgs e)
         {
             Application.Exit();
-            
+
         }
 
 
@@ -408,10 +367,10 @@ namespace sdr
                 formToOpen = new createSale();
             else if (formName == "FirmaBilgileriModel")
                 formToOpen = new FirmaAyarlariForm();
-            
 
-    if (formToOpen != null)
-        formToOpen.Show();
+
+            if (formToOpen != null)
+                formToOpen.Show();
         }
         private void ShowSubMenu(Control mainButton, List<(string Text, string formName, EventHandler OnClick, string PermissionKey)> submenuItems)
         {
@@ -420,8 +379,7 @@ namespace sdr
 
             foreach (var item in submenuItems)
             {
-                //if (!Session.UserPermissions.Contains(item.PermissionKey))
-                //    continue;
+               
 
                 string formName = item.formName;
 
@@ -487,7 +445,7 @@ namespace sdr
             saleForm.Show();
         }
 
-       
+
         private void dailyProgress_Click(object sender, EventArgs e)
         {
 
@@ -505,7 +463,7 @@ namespace sdr
 
         private void createSaleButton_Click(object sender, EventArgs e)
         {
-            createSale createSaleForm = new createSale(); 
+            createSale createSaleForm = new createSale();
             createSaleForm.Show();
 
         }
@@ -518,13 +476,12 @@ namespace sdr
 
         private void settingsButton_Click(object sender, EventArgs e)
         {
-           settingsForm settingsForm = new settingsForm();
-            settingsForm.Show();
+            
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            
+
         }
 
         private void lblUser_Click(object sender, EventArgs e)
@@ -550,55 +507,11 @@ namespace sdr
             DatabaseInformation databaseInformation = new DatabaseInformation();
             databaseInformation.Show();
         }
-/* LostButton btn = sender as LostButton;
-             if (btn == null) return;
-
-             panelSettingsSubMenu.Controls.Clear();
-
-             // Helper metot ile submenu butonu oluştur
-             void AddSubMenuButton(string text, EventHandler onClick)
-             {
-                 LostButton subBtn = new LostButton();
-                 subBtn.Text = text;
-                 subBtn.Width = 150;
-                 subBtn.Height = 30;
-                 subBtn.Left = 0;
-                 subBtn.Top = panelSettingsSubMenu.Controls.Count * 32;
-                 subBtn.Click += onClick;
-
-                 // 🟡 MouseEnter ve Leave olayları (sub butonun içindeyken kapanmasın)
-                 subBtn.MouseEnter += (s, e2) => { mouseInSubMenu = true; closeTimer.Stop(); };
-                 subBtn.MouseLeave += (s, e2) => { mouseInSubMenu = false; closeTimer.Start(); };
-
-                 panelSettingsSubMenu.Controls.Add(subBtn);
-             }
-
-             // Yetkili submenu butonları
-             if (Session.UserPermissions.Contains("createSale"))
-                 AddSubMenuButton("Create Sale", createSaleButton_Click);
-
-             if (Session.UserPermissions.Contains("customers"))
-                 AddSubMenuButton("Customers", customersButton_Click_1);
-
-             // Panel konumu
-             Point btnScreenPos = btn.PointToScreen(Point.Empty);
-             Point formScreenPos = this.PointToScreen(Point.Empty);
-             int relativeX = btnScreenPos.X - formScreenPos.X;
-             int relativeY = btnScreenPos.Y - formScreenPos.Y;
-
-             panelSettingsSubMenu.Left = relativeX + btn.Width + 5;
-             panelSettingsSubMenu.Top = relativeY;
-             panelSettingsSubMenu.Width = 150;
-             panelSettingsSubMenu.Height = panelSettingsSubMenu.Controls.Count * 32;
-
-             panelSettingsSubMenu.Visible = true;
-
-             mouseInMainButton = true;
-             closeTimer.Stop();*/
+        
         public void settingsButton_MouseEnter(object sender, EventArgs e)
 
         {
-           
+
             mouseInMainButton = true;
             closeTimer.Stop();
 
@@ -613,27 +526,61 @@ namespace sdr
         }
 
 
+        private void LoadSalesData()
+        {
+            int dailySales = 0;
+            int monthlySales = 0;
+            _siparisService.GetDailyAndMonthlyTotalSales(out dailySales, out monthlySales);
+            dailyProgress.Value = dailySales;
+            monthlyProgress.Value= monthlySales; 
+                Timer timer = new Timer();
+                timer.Interval = 30; 
+                timer.Tick += (s, e) =>
+                {
+                    if (dailyProgress.Value < dailySales)
+                        dailyProgress.Value += 1;
 
 
+                    if (monthlyProgress.Value < monthlySales)
+                        monthlyProgress.Value += 1;
+
+                    if (dailyProgress.Value >= dailySales && monthlyProgress.Value >= monthlySales)
+                    {
+                        timer.Stop();
+                        timer.Dispose();
+                    }
+                };
+                dailyProgress.Value = 0;
+                monthlyProgress.Value = 0;
+                timer.Start();
+        }
 
 
-        private void settingsButton_MouseLeave(object sender, EventArgs e)
+        private void btnRefreshSales_Click(object sender, EventArgs e)
+        {
+            LoadSalesData();
+            MessageBox.Show("Satış verileri güncellendi!", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+    
+
+
+    private void settingsButton_MouseLeave(object sender, EventArgs e)
         {
             mouseInMainButton = false;
             closeTimer.Start();
         }
 
-        private void salesButton_MouseEnter(object sender, EventArgs e)
-        {
-            mouseInMainButton = true;
-            closeTimer.Stop();
+    //    private void salesButton_MouseEnter(object sender, EventArgs e)
+    //    {
+    //        mouseInMainButton = true;
+    //        closeTimer.Stop();
 
-            ShowSubMenu(salesButton, new List<(string Text, string formName, EventHandler OnClick, string permissionKey)>
-    {
-        ("Create Sale", "createSale", createSaleButton_Click,""),
-        ("Customers", "customers", customersButton_Click_1,"")
-    });
-        }
+    //        ShowSubMenu(salesButton, new List<(string Text, string formName, EventHandler OnClick, string permissionKey)>
+    //{
+    //    ("Create Sale", "createSale", createSaleButton_Click,""),
+    //    ("Customers", "customers", customersButton_Click_1,"")
+    //});
+    //    }
 
         private void salesButton_MouseLeave(object sender, EventArgs e)
         {
@@ -644,6 +591,18 @@ namespace sdr
         private void panelSettingsSubMenu_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+
+   
+        private void lblDailyCount_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void stokEntryButton_Click(object sender, EventArgs e)
+        {
+            StokGiris stokgirisForm = new StokGiris();
+            stokgirisForm.Show();
         }
     }
 }

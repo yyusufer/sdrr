@@ -38,15 +38,15 @@
             this.txtProductSearch = new System.Windows.Forms.TextBox();
             this.lstSelectedProducts = new System.Windows.Forms.ListBox();
             this.grpCustomer = new System.Windows.Forms.GroupBox();
+            this.surnameTextbox = new System.Windows.Forms.TextBox();
+            this.nameTextbox = new System.Windows.Forms.TextBox();
+            this.phoneTextbox = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.txtIskonto = new System.Windows.Forms.TextBox();
             this.lblIskonto = new DevExpress.XtraEditors.LabelControl();
             this.lblPrice = new DevExpress.XtraEditors.LabelControl();
             this.lblTotal = new DevExpress.XtraEditors.LabelControl();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.phoneTextbox = new System.Windows.Forms.TextBox();
-            this.nameTextbox = new System.Windows.Forms.TextBox();
-            this.surnameTextbox = new System.Windows.Forms.TextBox();
             this.grpCustomer.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
@@ -199,6 +199,32 @@
             this.grpCustomer.TabStop = false;
             this.grpCustomer.Text = "Customer Informations";
             // 
+            // surnameTextbox
+            // 
+            this.surnameTextbox.Font = new System.Drawing.Font("Inter Medium", 13F, System.Drawing.FontStyle.Bold);
+            this.surnameTextbox.Location = new System.Drawing.Point(42, 267);
+            this.surnameTextbox.Name = "surnameTextbox";
+            this.surnameTextbox.Size = new System.Drawing.Size(286, 28);
+            this.surnameTextbox.TabIndex = 15;
+            // 
+            // nameTextbox
+            // 
+            this.nameTextbox.Font = new System.Drawing.Font("Inter Medium", 13F, System.Drawing.FontStyle.Bold);
+            this.nameTextbox.Location = new System.Drawing.Point(42, 183);
+            this.nameTextbox.Name = "nameTextbox";
+            this.nameTextbox.Size = new System.Drawing.Size(286, 28);
+            this.nameTextbox.TabIndex = 14;
+            // 
+            // phoneTextbox
+            // 
+            this.phoneTextbox.Font = new System.Drawing.Font("Inter Medium", 13F, System.Drawing.FontStyle.Bold);
+            this.phoneTextbox.Location = new System.Drawing.Point(42, 107);
+            this.phoneTextbox.Name = "phoneTextbox";
+            this.phoneTextbox.Size = new System.Drawing.Size(286, 28);
+            this.phoneTextbox.TabIndex = 13;
+            this.phoneTextbox.TextChanged += new System.EventHandler(this.phoneTextbox_TextChanged);
+            this.phoneTextbox.Leave += new System.EventHandler(this.phoneTextbox_Leave);
+            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.txtIskonto);
@@ -274,34 +300,9 @@
             this.groupBox2.ForeColor = System.Drawing.Color.White;
             this.groupBox2.Location = new System.Drawing.Point(28, 471);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(384, 72);
+            this.groupBox2.Size = new System.Drawing.Size(384, 176);
             this.groupBox2.TabIndex = 12;
             this.groupBox2.TabStop = false;
-            // 
-            // phoneTextbox
-            // 
-            this.phoneTextbox.Font = new System.Drawing.Font("Inter Medium", 13F, System.Drawing.FontStyle.Bold);
-            this.phoneTextbox.Location = new System.Drawing.Point(42, 107);
-            this.phoneTextbox.Name = "phoneTextbox";
-            this.phoneTextbox.Size = new System.Drawing.Size(286, 28);
-            this.phoneTextbox.TabIndex = 13;
-            this.phoneTextbox.TextChanged += new System.EventHandler(this.phoneTextbox_TextChanged);
-            // 
-            // nameTextbox
-            // 
-            this.nameTextbox.Font = new System.Drawing.Font("Inter Medium", 13F, System.Drawing.FontStyle.Bold);
-            this.nameTextbox.Location = new System.Drawing.Point(42, 183);
-            this.nameTextbox.Name = "nameTextbox";
-            this.nameTextbox.Size = new System.Drawing.Size(286, 28);
-            this.nameTextbox.TabIndex = 14;
-            // 
-            // surnameTextbox
-            // 
-            this.surnameTextbox.Font = new System.Drawing.Font("Inter Medium", 13F, System.Drawing.FontStyle.Bold);
-            this.surnameTextbox.Location = new System.Drawing.Point(42, 267);
-            this.surnameTextbox.Name = "surnameTextbox";
-            this.surnameTextbox.Size = new System.Drawing.Size(286, 28);
-            this.surnameTextbox.TabIndex = 15;
             // 
             // createSale
             // 

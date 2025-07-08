@@ -73,29 +73,9 @@
             this.btnCreateUser.Text = "Create User";
             this.btnCreateUser.Click += new System.EventHandler(this.btnCreateUser_Click);
             // 
-            // pctCreateUser
+           
             // 
-            this.pctCreateUser.BackColor = System.Drawing.Color.White;
-            this.pctCreateUser.Image = global::sdr.Properties.Resources.icons8_add_user_26;
-            this.pctCreateUser.Location = new System.Drawing.Point(374, 177);
-            this.pctCreateUser.Name = "pctCreateUser";
-            this.pctCreateUser.Size = new System.Drawing.Size(40, 40);
-            this.pctCreateUser.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-            this.pctCreateUser.TabIndex = 6;
-            this.pctCreateUser.TabStop = false;
-            // 
-            // pctDBConfigure
-            // 
-            this.pctDBConfigure.BackColor = System.Drawing.Color.White;
-            this.pctDBConfigure.Image = global::sdr.Properties.Resources.icons8_server_26;
-            this.pctDBConfigure.Location = new System.Drawing.Point(374, 96);
-            this.pctDBConfigure.Name = "pctDBConfigure";
-            this.pctDBConfigure.Size = new System.Drawing.Size(40, 40);
-            this.pctDBConfigure.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
-            this.pctDBConfigure.TabIndex = 7;
-            this.pctDBConfigure.TabStop = false;
-            // 
-            // grpCredentials
+       
             // 
             this.grpCredentials.Controls.Add(this.btnCreateRole);
             this.grpCredentials.Controls.Add(this.btnRoles);

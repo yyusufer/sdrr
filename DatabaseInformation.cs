@@ -9,12 +9,21 @@ namespace sdr
 {
     public partial class DatabaseInformation : baseForm
     {
-        private string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "dbconfig.json");
-
+        private string appDataFolder;
+        private string configPath;
 
         public DatabaseInformation()
         {
             InitializeComponent();
+
+            // AppData\Roaming\SDR Sistemleri klasörünü oluştur
+            appDataFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SDR Sistemleri");
+            if (!Directory.Exists(appDataFolder))
+            {
+                Directory.CreateDirectory(appDataFolder);
+            }
+
+            configPath = Path.Combine(appDataFolder, "dbconfig.json");
 
             checkLocalhost.CheckedChanged += (s, e) =>
             {
@@ -72,7 +81,7 @@ namespace sdr
                 }
                 catch
                 {
-                    // Okuma hatası olursa silent geç
+                    // Okuma hatası olursa sessizce geç
                 }
             }
         }
@@ -81,6 +90,7 @@ namespace sdr
         {
             get { return txtUsername.Text; }
         }
+
         private void BtnConnect_Click(object sender, EventArgs e)
         {
             if (btnConnect.Text == "Clear Config")
@@ -185,7 +195,7 @@ namespace sdr
 
         private void btnConnect_Click_1(object sender, EventArgs e)
         {
-
+            // Boş bırakılmış, kaldırabilirsin.
         }
     }
 }
