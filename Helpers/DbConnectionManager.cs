@@ -18,21 +18,29 @@ namespace sdr.Helpers
             public string Password { get; set; }
         }
 
-
-        private static readonly string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "dbconfig.json");
+        private static readonly string configPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "SDR Sistemleri",
+            "dbconfig.json"
+        );
 
         public static string GetConnectionString()
         {
             if (!File.Exists(configPath))
-                return null;
+                throw new FileNotFoundException("Database connection settings could not be found.");
 
             var json = File.ReadAllText(configPath);
             var config = Newtonsoft.Json.JsonConvert.DeserializeObject<DbConfig>(json);
+
+            if (config == null || string.IsNullOrEmpty(config.Server) || string.IsNullOrEmpty(config.Database))
+                return null;
 
             if (config.UseWindowsAuth)
                 return $"Server={config.Server};Database={config.Database};Integrated Security=True;";
             else
                 return $"Server={config.Server};Database={config.Database};User Id={config.Username};Password={config.Password};";
+
+
         }
     }
 }

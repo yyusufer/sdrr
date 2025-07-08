@@ -1,7 +1,7 @@
-﻿// Services/ConfigService.cs
-using Newtonsoft.Json;
-using sdr.Models; // <--- Bu satırın var olduğundan ve doğru olduğundan emin olun!
+﻿using Newtonsoft.Json;
+using sdr.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 
@@ -9,57 +9,102 @@ namespace sdr.Services
 {
     public static class ConfigService
     {
-        private static FirmaBilgileriModel _firmaBilgileri;
-        private static readonly string basePath = AppDomain.CurrentDomain.BaseDirectory;
-        private static readonly string filePath = Path.Combine(basePath, "FirmaBilgileri.json");
+        private static FirmaBilgileriModel _cachedFirmaBilgileri;
+        private static readonly string appDataFolder = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "SDR Sistemleri");
+        private static readonly string filePath = Path.Combine(appDataFolder, "FirmaBilgileri.json");
+
         public static FirmaBilgileriModel GetFirmaBilgileri()
         {
-            if (_firmaBilgileri == null)
+            // Önce önbellek varsa onu dön
+            if (_cachedFirmaBilgileri != null)
+                return _cachedFirmaBilgileri;
+
+            try
             {
-               
-                if (File.Exists(filePath))
+                // Klasör yoksa oluştur
+                if (!Directory.Exists(appDataFolder))
+                    Directory.CreateDirectory(appDataFolder);
+
+                // Dosya yoksa oluştur ve içine boş bir model yaz
+                if (!File.Exists(filePath))
                 {
-                    try
+                    _cachedFirmaBilgileri = new FirmaBilgileriModel()
                     {
-                        string jsonString = File.ReadAllText(filePath);
-                        _firmaBilgileri = JsonConvert.DeserializeObject<FirmaBilgileriModel>(jsonString);
-                    }
-                    catch (JsonException ex)
-                    {
-                        MessageBox.Show($"Firma bilgileri JSON dosyasını okurken hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        _firmaBilgileri = new FirmaBilgileriModel();
-                    }
-                    catch (IOException ex)
-                    {
-                        MessageBox.Show($"Firma bilgileri dosyasına erişirken hata oluştu: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        _firmaBilgileri = new FirmaBilgileriModel();
-                    }
+                        BankaHesaplari = new List<BankaHesapBilgisi>()
+                    };
+                    SaveFirmaBilgileri(_cachedFirmaBilgileri);
+                    return _cachedFirmaBilgileri;
                 }
-                else
+
+                // Dosyayı oku
+                string json = File.ReadAllText(filePath);
+
+                // Eğer dosya boşsa veya geçersizse boş model dön
+                if (string.IsNullOrWhiteSpace(json))
                 {
-                    MessageBox.Show($"FirmaBilgileri.json dosyası bulunamadı: {filePath}. Yeni bir dosya oluşturulacak.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    _firmaBilgileri = new FirmaBilgileriModel(); // Dosya yoksa boş model döndür
-                    // Boş bir JSON dosyası oluşturabiliriz başlangıçta
-                    try
+                    _cachedFirmaBilgileri = new FirmaBilgileriModel()
                     {
-                        string emptyJson = JsonConvert.SerializeObject(_firmaBilgileri, Formatting.Indented);
-                        File.WriteAllText(filePath, emptyJson);
-                    }
-                    catch (Exception ex)
+                        BankaHesaplari = new List<BankaHesapBilgisi>()
+                    };
+                    SaveFirmaBilgileri(_cachedFirmaBilgileri);
+                    return _cachedFirmaBilgileri;
+                }
+
+                // Deserialize etmeye çalış
+                _cachedFirmaBilgileri = JsonConvert.DeserializeObject<FirmaBilgileriModel>(json);
+
+                // Eğer null dönerse boş model yarat ve kaydet
+                if (_cachedFirmaBilgileri == null)
+                {
+                    _cachedFirmaBilgileri = new FirmaBilgileriModel()
                     {
-                        MessageBox.Show($"Boş FirmaBilgileri.json dosyası oluşturulurken hata: {ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
+                        BankaHesaplari = new List<BankaHesapBilgisi>()
+                    };
+                    SaveFirmaBilgileri(_cachedFirmaBilgileri);
                 }
             }
-            return _firmaBilgileri;
+            catch
+            {
+                // Okuma veya parse hatası varsa dosyayı sil ve yeni oluştur
+                try
+                {
+                    if (File.Exists(filePath))
+                        File.Delete(filePath);
+                }
+                catch { /* Silme hatası yoksay */ }
+
+                _cachedFirmaBilgileri = new FirmaBilgileriModel()
+                {
+                    BankaHesaplari = new List<BankaHesapBilgisi>()
+                };
+                SaveFirmaBilgileri(_cachedFirmaBilgileri);
+            }
+
+            return _cachedFirmaBilgileri;
         }
-        
-        /// <summary>
-        /// Firma bilgileri önbelleğini temizler.
-        /// </summary>
+        public static void SaveFirmaBilgileri(FirmaBilgileriModel firmaBilgileri)
+        {
+            try
+            {
+                if (!Directory.Exists(appDataFolder))
+                    Directory.CreateDirectory(appDataFolder);
+
+                string json = JsonConvert.SerializeObject(firmaBilgileri, Formatting.Indented);
+                File.WriteAllText(filePath, json);
+
+                _cachedFirmaBilgileri = firmaBilgileri; // Önbelleği güncelle
+            }
+            catch
+            {
+                // Hata yönetimi yapılabilir
+                throw;
+            }
+        }
         public static void ClearCache()
         {
-            _firmaBilgileri = null;
+            _cachedFirmaBilgileri = null;
         }
     }
 }

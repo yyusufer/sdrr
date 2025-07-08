@@ -94,20 +94,27 @@ namespace sdr
         {
             try
             {
-                // ConfigService üzerinden firma bilgilerini yükle
                 currentFirmaBilgileri = ConfigService.GetFirmaBilgileri();
 
-                // Textbox'lara firma bilgilerini ata
-                txtFirmaAdi.Text = currentFirmaBilgileri.FirmaAdi;
-                txtAdres.Text = currentFirmaBilgileri.Adres;
-                txtTelefon.Text = currentFirmaBilgileri.Telefon;
-                txtEmail.Text = currentFirmaBilgileri.Email;
-                txtVergiDairesi.Text = currentFirmaBilgileri.VergiDairesi;
-                txtVergiNo.Text = currentFirmaBilgileri.VergiNo;
+                if (currentFirmaBilgileri == null)
+                {
+                    MessageBox.Show("Firma bilgileri yüklenemedi!", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    currentFirmaBilgileri = new FirmaBilgileriModel()
+                    {
+                        BankaHesaplari = new List<BankaHesapBilgisi>()
+                    };
+                }
 
-                // Banka hesaplarını DataGridView'e yükle
-                // Mevcut listeyi kopyalayarak yeni bir liste oluşturup DataSource'a atıyoruz.
-                // Bu, DataGridView'in doğrudan orijinal listede değişiklik yapmasını engeller.
+                if (currentFirmaBilgileri.BankaHesaplari == null)
+                    currentFirmaBilgileri.BankaHesaplari = new List<BankaHesapBilgisi>();
+
+                txtFirmaAdi.Text = currentFirmaBilgileri.FirmaAdi ?? "";
+                txtAdres.Text = currentFirmaBilgileri.Adres ?? "";
+                txtTelefon.Text = currentFirmaBilgileri.Telefon ?? "";
+                txtEmail.Text = currentFirmaBilgileri.Email ?? "";
+                txtVergiDairesi.Text = currentFirmaBilgileri.VergiDairesi ?? "";
+                txtVergiNo.Text = currentFirmaBilgileri.VergiNo ?? "";
+
                 dgvBankaHesaplari.DataSource = new List<BankaHesapBilgisi>(currentFirmaBilgileri.BankaHesaplari);
             }
             catch (Exception ex)
@@ -135,8 +142,19 @@ namespace sdr
 
                 // Firma bilgilerini JSON dosyasına serileştirip kaydet
                 // Json'ı düzenli (girintili) formatta kaydet
+                string appDataFolder = Path.Combine(
+       Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+       "SDR Sistemleri"
+   );
+
+                if (!Directory.Exists(appDataFolder))
+                {
+                    Directory.CreateDirectory(appDataFolder);
+                }
+
+                string filePath = Path.Combine(appDataFolder, "FirmaBilgileri.json");
+
                 string jsonString = JsonConvert.SerializeObject(currentFirmaBilgileri, Formatting.Indented);
-                string filePath = Path.Combine(Application.StartupPath, "FirmaBilgileri.json");
                 File.WriteAllText(filePath, jsonString);
 
                 MessageBox.Show("Firma bilgileri başarıyla kaydedildi!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
